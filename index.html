@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Airport Gate Walking Distance Calculator</title>
+  <script type="module" crossorigin src="/mapsdrawer/assets/index-CRijowWA.js"></script>
+  <link rel="stylesheet" crossorigin href="/mapsdrawer/assets/index-BRdmOcuy.css">
+</head>
+<body>
+  <div id="app">
+    <div id="map"></div>
+    <div id="info-panel">
+      <h2>Walking Distance Calculator</h2>
+      <div id="instructions">
+        <p>1. Zoom into an airport terminal</p>
+        <p>2. <strong>Right-click</strong> to start drawing a line</p>
+        <p>3. Click to add more points along your path</p>
+        <p>4. Double-click to finish the line</p>
+      </div>
+      <div id="lines-section">
+        <h3>Drawn Lines:</h3>
+        <div id="lines-list">
+          <p class="no-lines">No lines drawn yet</p>
+        </div>
+        <div id="totals">
+          <div class="total-item">
+            <span class="label">Total Distance:</span>
+            <span id="distance-value">--</span>
+          </div>
+          <div class="total-item">
+            <span class="label">Total Walking Time:</span>
+            <span id="time-value">--</span>
+          </div>
+        </div>
+      </div>
+      <div id="airports">
+        <h3>Quick Jump to Airports:</h3>
+        <button data-lat="33.6407" data-lng="-84.4277" data-zoom="17">ATL - Atlanta</button>
+        <button data-lat="33.9425" data-lng="-118.4081" data-zoom="17">LAX - Los Angeles</button>
+        <button data-lat="41.9742" data-lng="-87.9073" data-zoom="17">ORD - Chicago O'Hare</button>
+        <button data-lat="40.6413" data-lng="-73.7781" data-zoom="17">JFK - New York JFK</button>
+        <button data-lat="37.6213" data-lng="-122.3790" data-zoom="17">SFO - San Francisco</button>
+        <button data-lat="32.8998" data-lng="-97.0403" data-zoom="17">DFW - Dallas/Fort Worth</button>
+        <button data-lat="47.4502" data-lng="-122.3088" data-zoom="17">SEA - Seattle</button>
+        <button data-lat="25.7959" data-lng="-80.2870" data-zoom="17">MIA - Miami</button>
+      </div>
+      <button id="clear-btn">Clear All Lines</button>
+    </div>
+  </div>
+</body>
+</html>
