@@ -22,6 +22,17 @@ let lineCounter = 0;
 // Store lines with their labels
 const lines = new Map(); // lineId -> { polyline, labels: [] }
 
+// Undo stack (max 10 actions)
+const undoStack = [];
+const MAX_UNDO = 10;
+
+function pushUndo(action) {
+  undoStack.push(action);
+  if (undoStack.length > MAX_UNDO) {
+    undoStack.shift();
+  }
+}
+
 // Initialize the map centered on ATL (busiest airport)
 const map = L.map('map').setView([33.6407, -84.4277], 17);
 
@@ -251,8 +262,8 @@ function updateResults() {
   updateTotals();
 }
 
-// Delete a specific line
-function deleteLine(lineId) {
+// Delete a specific line (internal, no undo tracking)
+function removeLineFromMap(lineId) {
   const lineData = lines.get(lineId);
   if (lineData) {
     drawnItems.removeLayer(lineData.polyline);
@@ -261,6 +272,23 @@ function deleteLine(lineId) {
     }
     lines.delete(lineId);
     updateResults();
+  }
+}
+
+// Delete a specific line (user action, with undo)
+function deleteLine(lineId) {
+  const lineData = lines.get(lineId);
+  if (lineData) {
+    // Save data for undo
+    const latlngs = lineData.polyline.getLatLngs();
+    pushUndo({
+      type: 'delete',
+      lineId,
+      latlngs: Array.isArray(latlngs[0]) ? latlngs[0] : latlngs,
+      color: lineData.color,
+      number: lineData.number
+    });
+    removeLineFromMap(lineId);
   }
 }
 
@@ -278,12 +306,16 @@ map.on(L.Draw.Event.CREATED, (e) => {
   drawnItems.addLayer(layer);
 
   // Store line data
-  lines.set(lineId, {
+  const lineData = {
     polyline: layer,
     labels: [],
     color: color,
     number: lineCounter
-  });
+  };
+  lines.set(lineId, lineData);
+
+  // Push to undo stack
+  pushUndo({ type: 'create', lineId });
 
   // Create label
   updateLineLabel(lineId);
@@ -461,4 +493,40 @@ map.on('contextmenu', (e) => {
 // Clear draw handler reference when drawing completes
 map.on(L.Draw.Event.CREATED, () => {
   currentDrawHandler = null;
+});
+
+// Restore a deleted line
+function restoreLine(latlngs, color, number) {
+  const lineId = `line-${number}`;
+  const layer = L.polyline(latlngs, { color, weight: 4, opacity: 0.8 });
+  layer._lineId = lineId;
+  drawnItems.addLayer(layer);
+
+  lines.set(lineId, {
+    polyline: layer,
+    labels: [],
+    color: color,
+    number: number
+  });
+
+  updateLineLabel(lineId);
+  updateResults();
+  return lineId;
+}
+
+// Undo handler (Ctrl+Z)
+document.addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+    e.preventDefault();
+    if (undoStack.length === 0) return;
+
+    const action = undoStack.pop();
+    if (action.type === 'create') {
+      // Undo create = delete the line (without adding to undo)
+      removeLineFromMap(action.lineId);
+    } else if (action.type === 'delete') {
+      // Undo delete = restore the line
+      restoreLine(action.latlngs, action.color, action.number);
+    }
+  }
 });
