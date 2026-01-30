@@ -427,10 +427,17 @@ document.getElementById('clear-btn').addEventListener('click', () => {
 // Add scale control
 L.control.scale({ imperial: true, metric: true }).addTo(map);
 
-// Right-click to start a new line
+// Right-click to start a new line or finish current line
 let currentDrawHandler = null;
 map.on('contextmenu', (e) => {
-  // Cancel any existing draw operation
+  // If currently drawing, add final point and finish the line
+  if (currentDrawHandler && currentDrawHandler._markers && currentDrawHandler._markers.length >= 1) {
+    currentDrawHandler.addVertex(e.latlng);
+    currentDrawHandler.completeShape();
+    return;
+  }
+
+  // Cancel any incomplete draw operation (less than 2 points)
   if (currentDrawHandler) {
     currentDrawHandler.disable();
   }
