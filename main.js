@@ -20,7 +20,7 @@ const LINE_COLORS = ['#3388ff', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ff
 let lineCounter = 0;
 
 // Store lines with their labels
-const lines = new Map(); // lineId -> { polyline, label }
+const lines = new Map(); // lineId -> { polyline, labels: [] }
 
 // Initialize the map centered on ATL (busiest airport)
 const map = L.map('map').setView([33.6407, -84.4277], 17);
@@ -74,27 +74,25 @@ function calculateDistance(latlngs) {
   return totalMeters * METERS_TO_FEET;
 }
 
-// Format time from seconds to readable string
+// Format time from seconds to readable string (rounded to nearest minute)
 function formatTime(seconds) {
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.round(seconds % 60);
+  const mins = Math.round(seconds / 60);
   if (mins === 0) {
-    return `${secs}s`;
+    return '<1m';
   } else {
-    return `${mins}m ${secs}s`;
+    return `${mins}m`;
   }
 }
 
-// Format time for display (longer format)
+// Format time for display (longer format, rounded to nearest minute)
 function formatTimeLong(seconds) {
-  const mins = Math.floor(seconds / 60);
-  const secs = Math.round(seconds % 60);
+  const mins = Math.round(seconds / 60);
   if (mins === 0) {
-    return `${secs} seconds`;
+    return '<1 min';
   } else if (mins === 1) {
-    return `1 min ${secs} sec`;
+    return '1 min';
   } else {
-    return `${mins} min ${secs} sec`;
+    return `${mins} min`;
   }
 }
 
@@ -127,38 +125,75 @@ function getMidpoint(latlngs) {
   return latlngs[Math.floor(latlngs.length / 2)];
 }
 
-// Create a label marker for a line
-function createLabel(latlng, text, color) {
+// Create a label marker for a segment
+function createSegmentLabel(latlng, text, color) {
   const icon = L.divIcon({
     className: 'line-label',
-    html: `<div style="background: ${color}; border: 2px solid white; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${text}</div>`,
+    html: `<div style="background: ${color}; border: 2px solid white; color: white; padding: 3px 6px; border-radius: 3px; font-weight: bold; font-size: 11px; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${text}</div>`,
     iconSize: null,
     iconAnchor: [0, 0]
   });
   return L.marker(latlng, { icon, interactive: false });
 }
 
-// Update label for a specific line
+// Create a total label marker (larger, at end of line)
+function createTotalLabel(latlng, text, color) {
+  const icon = L.divIcon({
+    className: 'line-label total-label',
+    html: `<div style="background: ${color}; border: 3px solid white; color: white; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 13px; white-space: nowrap; box-shadow: 0 3px 6px rgba(0,0,0,0.4);">Total: ${text}</div>`,
+    iconSize: null,
+    iconAnchor: [0, 0]
+  });
+  return L.marker(latlng, { icon, interactive: false });
+}
+
+// Get midpoint between two latlngs
+function getSegmentMidpoint(start, end) {
+  return L.latLng(
+    (start.lat + end.lat) / 2,
+    (start.lng + end.lng) / 2
+  );
+}
+
+// Update labels for a specific line (per-segment + total)
 function updateLineLabel(lineId) {
   const lineData = lines.get(lineId);
   if (!lineData) return;
 
-  const latlngs = lineData.polyline.getLatLngs();
-  const feet = calculateDistance(latlngs);
-  const seconds = feet / WALKING_SPEED_FT_PER_SEC;
-  const text = formatTime(seconds);
+  // Remove old labels
+  if (lineData.labels) {
+    lineData.labels.forEach(label => labelsLayer.removeLayer(label));
+  }
+  lineData.labels = [];
 
-  // Remove old label
-  if (lineData.label) {
-    labelsLayer.removeLayer(lineData.label);
+  let latlngs = lineData.polyline.getLatLngs();
+  // Leaflet can return nested arrays for polylines - flatten if needed
+  if (latlngs.length > 0 && Array.isArray(latlngs[0])) {
+    latlngs = latlngs[0];
+  }
+  if (latlngs.length < 2) return;
+
+  let totalFeet = 0;
+
+  // Create label for each segment
+  for (let i = 0; i < latlngs.length - 1; i++) {
+    const segmentMeters = latlngs[i].distanceTo(latlngs[i + 1]);
+    const segmentFeet = segmentMeters * METERS_TO_FEET;
+    totalFeet += segmentFeet;
+    const segmentSeconds = segmentFeet / WALKING_SPEED_FT_PER_SEC;
+
+    const midpoint = getSegmentMidpoint(latlngs[i], latlngs[i + 1]);
+    const label = createSegmentLabel(midpoint, formatTime(segmentSeconds), lineData.color);
+    lineData.labels.push(label);
+    labelsLayer.addLayer(label);
   }
 
-  // Create new label at midpoint
-  const midpoint = getMidpoint(latlngs);
-  if (midpoint) {
-    lineData.label = createLabel(midpoint, text, lineData.color);
-    labelsLayer.addLayer(lineData.label);
-  }
+  // Create total label at the end of the line
+  const totalSeconds = totalFeet / WALKING_SPEED_FT_PER_SEC;
+  const endPoint = latlngs[latlngs.length - 1];
+  const totalLabel = createTotalLabel(endPoint, formatTime(totalSeconds), lineData.color);
+  lineData.labels.push(totalLabel);
+  labelsLayer.addLayer(totalLabel);
 }
 
 // Update the sidebar list
@@ -221,8 +256,8 @@ function deleteLine(lineId) {
   const lineData = lines.get(lineId);
   if (lineData) {
     drawnItems.removeLayer(lineData.polyline);
-    if (lineData.label) {
-      labelsLayer.removeLayer(lineData.label);
+    if (lineData.labels) {
+      lineData.labels.forEach(label => labelsLayer.removeLayer(label));
     }
     lines.delete(lineId);
     updateResults();
@@ -245,7 +280,7 @@ map.on(L.Draw.Event.CREATED, (e) => {
   // Store line data
   lines.set(lineId, {
     polyline: layer,
-    label: null,
+    labels: [],
     color: color,
     number: lineCounter
   });
@@ -270,8 +305,8 @@ map.on(L.Draw.Event.DELETED, (e) => {
   e.layers.eachLayer((layer) => {
     if (layer._lineId) {
       const lineData = lines.get(layer._lineId);
-      if (lineData && lineData.label) {
-        labelsLayer.removeLayer(lineData.label);
+      if (lineData && lineData.labels) {
+        lineData.labels.forEach(label => labelsLayer.removeLayer(label));
       }
       lines.delete(layer._lineId);
     }
