@@ -168,24 +168,47 @@ body {
   color: #333;
 }
 
-#airports button {
-  display: block;
+#airport-search {
   width: 100%;
   padding: 10px 12px;
-  margin-bottom: 8px;
-  background: #fff;
+  margin-bottom: 10px;
   border: 1px solid #ddd;
   border-radius: 6px;
-  cursor: pointer;
   font-size: 0.9rem;
-  text-align: left;
-  transition: all 0.2s;
 }
 
-#airports button:hover {
+#airport-search:focus {
+  outline: none;
+  border-color: #0066cc;
+}
+
+#airport-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+#airport-list button {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: #fff;
+  border: none;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-align: left;
+  transition: background 0.2s;
+}
+
+#airport-list button:last-child {
+  border-bottom: none;
+}
+
+#airport-list button:hover {
   background: #0066cc;
   color: #fff;
-  border-color: #0066cc;
 }
 
 #clear-btn {

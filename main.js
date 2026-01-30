@@ -322,13 +322,97 @@ document.getElementById('lines-list').addEventListener('click', (e) => {
   }
 });
 
-// Airport quick jump buttons
-document.getElementById('airports').addEventListener('click', (e) => {
+// Airport data
+const airports = [
+  { code: 'ATL', name: 'Atlanta', lat: 33.6407, lng: -84.4277 },
+  { code: 'AUS', name: 'Austin', lat: 30.1975, lng: -97.6664 },
+  { code: 'BDL', name: 'Hartford/Windsor Locks', lat: 41.9389, lng: -72.6860 },
+  { code: 'BHM', name: 'Birmingham', lat: 33.5629, lng: -86.7535 },
+  { code: 'BNA', name: 'Nashville', lat: 36.1263, lng: -86.6774 },
+  { code: 'BOI', name: 'Boise', lat: 43.5644, lng: -116.2228 },
+  { code: 'BOS', name: 'Boston', lat: 42.3656, lng: -71.0096 },
+  { code: 'BUF', name: 'Buffalo', lat: 42.9405, lng: -78.7322 },
+  { code: 'BWI', name: 'Baltimore', lat: 39.1754, lng: -76.6683 },
+  { code: 'CLE', name: 'Cleveland', lat: 41.4117, lng: -81.8498 },
+  { code: 'CMH', name: 'Columbus', lat: 39.9980, lng: -82.8919 },
+  { code: 'CVG', name: 'Cincinnati', lat: 39.0488, lng: -84.6678 },
+  { code: 'DAL', name: 'Dallas Love Field', lat: 32.8471, lng: -96.8518 },
+  { code: 'DCA', name: 'Washington Reagan', lat: 38.8512, lng: -77.0402 },
+  { code: 'DEN', name: 'Denver', lat: 39.8561, lng: -104.6737 },
+  { code: 'DFW', name: 'Dallas/Fort Worth', lat: 32.8998, lng: -97.0403 },
+  { code: 'DTW', name: 'Detroit', lat: 42.2124, lng: -83.3534 },
+  { code: 'EWR', name: 'Newark', lat: 40.6895, lng: -74.1745 },
+  { code: 'FLL', name: 'Fort Lauderdale', lat: 26.0726, lng: -80.1527 },
+  { code: 'GSP', name: 'Greenville-Spartanburg', lat: 34.8957, lng: -82.2189 },
+  { code: 'HNL', name: 'Honolulu', lat: 21.3187, lng: -157.9225 },
+  { code: 'HOU', name: 'Houston Hobby', lat: 29.6454, lng: -95.2789 },
+  { code: 'HPN', name: 'Westchester County', lat: 41.0670, lng: -73.7076 },
+  { code: 'IAD', name: 'Washington Dulles', lat: 38.9531, lng: -77.4565 },
+  { code: 'IAH', name: 'Houston Bush', lat: 29.9902, lng: -95.3368 },
+  { code: 'JFK', name: 'New York JFK', lat: 40.6413, lng: -73.7781 },
+  { code: 'LAS', name: 'Las Vegas', lat: 36.0840, lng: -115.1537 },
+  { code: 'LAX', name: 'Los Angeles', lat: 33.9425, lng: -118.4081 },
+  { code: 'LGA', name: 'New York LaGuardia', lat: 40.7769, lng: -73.8740 },
+  { code: 'LGB', name: 'Long Beach', lat: 33.8177, lng: -118.1516 },
+  { code: 'MCI', name: 'Kansas City', lat: 39.2976, lng: -94.7139 },
+  { code: 'MCO', name: 'Orlando', lat: 28.4312, lng: -81.3081 },
+  { code: 'MDW', name: 'Chicago Midway', lat: 41.7868, lng: -87.7522 },
+  { code: 'MIA', name: 'Miami', lat: 25.7959, lng: -80.2870 },
+  { code: 'MKE', name: 'Milwaukee', lat: 42.9472, lng: -87.8966 },
+  { code: 'MSP', name: 'Minneapolis-St. Paul', lat: 44.8848, lng: -93.2223 },
+  { code: 'MSY', name: 'New Orleans', lat: 29.9934, lng: -90.2580 },
+  { code: 'OAK', name: 'Oakland', lat: 37.7126, lng: -122.2197 },
+  { code: 'OGG', name: 'Maui', lat: 20.8986, lng: -156.4305 },
+  { code: 'OKC', name: 'Oklahoma City', lat: 35.3931, lng: -97.6007 },
+  { code: 'ONT', name: 'Ontario', lat: 34.0560, lng: -117.6012 },
+  { code: 'ORD', name: 'Chicago O\'Hare', lat: 41.9742, lng: -87.9073 },
+  { code: 'PBI', name: 'Palm Beach', lat: 26.6832, lng: -80.0956 },
+  { code: 'PDX', name: 'Portland', lat: 45.5898, lng: -122.5951 },
+  { code: 'PHX', name: 'Phoenix', lat: 33.4373, lng: -112.0078 },
+  { code: 'PIT', name: 'Pittsburgh', lat: 40.4915, lng: -80.2329 },
+  { code: 'PSP', name: 'Palm Springs', lat: 33.8303, lng: -116.5067 },
+  { code: 'PVD', name: 'Providence', lat: 41.7241, lng: -71.4283 },
+  { code: 'RDU', name: 'Raleigh-Durham', lat: 35.8801, lng: -78.7880 },
+  { code: 'SAN', name: 'San Diego', lat: 32.7336, lng: -117.1897 },
+  { code: 'SAT', name: 'San Antonio', lat: 29.5337, lng: -98.4698 },
+  { code: 'SEA', name: 'Seattle', lat: 47.4502, lng: -122.3088 },
+  { code: 'SFO', name: 'San Francisco', lat: 37.6213, lng: -122.3790 },
+  { code: 'SJC', name: 'San Jose', lat: 37.3639, lng: -121.9289 },
+  { code: 'SJU', name: 'San Juan', lat: 18.4394, lng: -66.0018 },
+  { code: 'SLC', name: 'Salt Lake City', lat: 40.7899, lng: -111.9791 },
+  { code: 'SMF', name: 'Sacramento', lat: 38.6954, lng: -121.5910 },
+  { code: 'SNA', name: 'Orange County', lat: 33.6757, lng: -117.8678 },
+  { code: 'STL', name: 'St. Louis', lat: 38.7487, lng: -90.3700 },
+  { code: 'TUL', name: 'Tulsa', lat: 36.1984, lng: -95.8881 }
+];
+
+// Render airport list
+function renderAirports(filter = '') {
+  const listEl = document.getElementById('airport-list');
+  const filtered = airports.filter(a =>
+    a.code.toLowerCase().includes(filter.toLowerCase()) ||
+    a.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
+  listEl.innerHTML = filtered.map(a =>
+    `<button data-lat="${a.lat}" data-lng="${a.lng}">${a.code} - ${a.name}</button>`
+  ).join('');
+}
+
+// Initial render
+renderAirports();
+
+// Search handler
+document.getElementById('airport-search').addEventListener('input', (e) => {
+  renderAirports(e.target.value);
+});
+
+// Airport click handler
+document.getElementById('airport-list').addEventListener('click', (e) => {
   if (e.target.tagName === 'BUTTON') {
     const lat = parseFloat(e.target.dataset.lat);
     const lng = parseFloat(e.target.dataset.lng);
-    const zoom = parseInt(e.target.dataset.zoom);
-    map.setView([lat, lng], zoom);
+    map.setView([lat, lng], 17);
   }
 });
 
