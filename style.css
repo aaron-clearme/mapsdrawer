@@ -1,0 +1,211 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+#app {
+  display: flex;
+  height: 100vh;
+}
+
+#map {
+  flex: 1;
+  height: 100%;
+}
+
+#info-panel {
+  width: 320px;
+  padding: 20px;
+  background: #f5f5f5;
+  overflow-y: auto;
+  border-left: 1px solid #ddd;
+}
+
+#info-panel h2 {
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+#instructions {
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+}
+
+#instructions p {
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+#instructions p:last-child {
+  margin-bottom: 0;
+}
+
+/* Lines section */
+#lines-section {
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+}
+
+#lines-section h3 {
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+#lines-list {
+  margin-bottom: 15px;
+}
+
+.no-lines {
+  color: #888;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.line-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 8px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.line-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.line-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.line-name {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.line-stats {
+  display: block;
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 2px;
+}
+
+.delete-line-btn {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: #e9ecef;
+  color: #666;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.delete-line-btn:hover {
+  background: #dc3545;
+  color: #fff;
+}
+
+/* Totals */
+#totals {
+  border-top: 1px solid #e9ecef;
+  padding-top: 12px;
+}
+
+.total-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+}
+
+.total-item .label {
+  font-weight: 600;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.total-item span:last-child {
+  color: #0066cc;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+#airports {
+  margin-bottom: 20px;
+}
+
+#airports h3 {
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+#airports button {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+#airports button:hover {
+  background: #0066cc;
+  color: #fff;
+  border-color: #0066cc;
+}
+
+#clear-btn {
+  width: 100%;
+  padding: 12px;
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+#clear-btn:hover {
+  background: #c82333;
+}
+
+/* Leaflet draw toolbar styling improvements */
+.leaflet-draw-toolbar a {
+  background-size: 300px 30px !important;
+}
